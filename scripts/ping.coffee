@@ -21,10 +21,10 @@ module.exports = (robot) ->
     robot.brain.set sender, sender_pings
     res.reply "Ping saved."
 
-  robot.hear /@ping list\b/i, (res) ->
+  robot.hear /@ping log\b/i, (res) ->
     sender = res.message.user.name
     ping_log = robot.brain.get(sender)
-    if ping_log
+    if ping_log and ping_log.length() > 0
       res.reply "Here are your outgoing pings:"
       for i, log of ping_log
         res.reply "(" + i + ") " + log
@@ -32,9 +32,19 @@ module.exports = (robot) ->
       res.reply "No outgoing pings found for you #{sender}."
 
   robot.hear /@ping close (\d+)(( \d*)*)/i, (res) ->
+    # Parse the message for the ping entries to close
     words = res.match[0].split(" ")
     close_indices = []
     for i, word of words
       if i >= 2 and word
         close_indices.push(word)
-    res.reply close_indices
+
+    # Remove the ping entries from the sender's log
+    # Avoid complications by doing an index-exclusive clone
+    sender = res.message.user.name
+    ping_log = robot.brain.get(sender)
+    new_ping_log = []
+    for i, ping_entry of ping_log
+      if i not in close_indices
+        new_ping_log.push(ping_entry)
+    robot.brain.set sender, new_ping_log
