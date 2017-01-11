@@ -4,6 +4,7 @@
 # Commands:
 #   @ping [@mention ...] ... - create a new ping
 #   @ping log - view your outgoing pings
+#   @ping [n ...] - re-ping an old ping
 #   @ping close [n ...] - close pings identified by index number
 #
 # Author:
@@ -15,18 +16,21 @@ class PingEntry
   toString: ->
     return @msg + " [" + @timestamp + "]"
 
+getCurrentDatetime = () ->
+  currentDate = new Date()
+  datetime = currentDate.getDate() + "/" \
+    + (currentDate.getMonth() + 1) + "/" \
+    + currentDate.getFullYear() + " " \
+    + currentDate.getHours() + ":" \
+    + currentDate.getMinutes() + ":" \
+    + currentDate.getSeconds()
+  return datetime
+
 module.exports = (robot) ->
   # @ping [@mention ...] ... - create a new ping
   robot.hear /@ping (@.+)/i, (res) ->
     # Build ping entry
-    currentDate = new Date()
-    datetime = currentDate.getDate() + "/" \
-      + (currentDate.getMonth() + 1) + "/" \
-      + currentDate.getFullYear() + " " \
-      + currentDate.getHours() + ":" \
-      + currentDate.getMinutes() + ":" \
-      + currentDate.getSeconds()
-    pingEntry = new PingEntry res.message.text, datetime, res.channel
+    pingEntry = new PingEntry res.message.text, getCurrentDatetime(), res.channel
 
     # Store ping entry
     sender = res.message.user.name
@@ -44,6 +48,8 @@ module.exports = (robot) ->
     sender = res.message.user.name
     pingLog = robot.brain.get(sender)
     if pingLog and pingLog.length > 0
+      # Sort oldest-first
+      pingLog.sort (a, b) -> return a.timestamp > b.timestamp
       res.reply "Here are your outgoing pings:"
       for i, log of pingLog
         res.reply "(" + i + ") " + log.toString()
@@ -59,12 +65,14 @@ module.exports = (robot) ->
       if i >= 1 and word
         pingIndices.push(word)
 
-    # Re-ping
+    # Re-ping and bump timestamp
     sender = res.message.user.name
     pingLog = robot.brain.get(sender)
     for i, pingEntry of pingLog
       if i in pingIndices
         robot.messageRoom pingEntry.channel, "#{pingEntry.msg}"
+        pingEntry.timestamp = getCurrentDatetime()
+    robot.brain.set sender, pingLog
 
   # @ping close [n ...] - close pings identified by index number
   robot.hear /@ping close (\d+)(( \d*)*)/i, (res) ->
