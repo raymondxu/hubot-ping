@@ -29,7 +29,7 @@ getCurrentDatetime = () ->
 module.exports = (robot) ->
   # @ping [@mention ...] ... - create a new ping
   robot.hear /@ping (@.+)/i, (res) ->
-    pingEntry = new PingEntry res.message.text, getCurrentDatetime(), res.channel
+    pingEntry = new PingEntry res.message.text, getCurrentDatetime(), res.message.room
     sender = "@" + res.message.user.name
     pingLog = robot.brain.get(sender)
     if not pingLog
@@ -66,7 +66,7 @@ module.exports = (robot) ->
     pingLog = robot.brain.get(sender)
     for i, pingEntry of pingLog
       if i in pingIndices
-        robot.messageRoom pingEntry.channel, "#{pingEntry.msg}"
+        robot.messageRoom pingEntry.channel, pingEntry.msg
         pingEntry.timestamp = getCurrentDatetime()
     robot.brain.set sender, pingLog
 
