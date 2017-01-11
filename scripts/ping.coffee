@@ -2,13 +2,22 @@
 #   A script that tracks your outgoing pings on Slack.
 #
 # Commands:
-#   @ping [@mention ...] ... - create a new ping
+#   @ping @mention [@mention ...] [message] - create a new ping
 #   @ping log - view your outgoing pings
-#   @ping [n ...] - re-ping an old ping
-#   @ping close [n ...] - close pings identified by index number
+#   @ping n [n ...] - re-ping an old ping by index
+#   @ping close n [n ...] - close pings by index
+#   @ping help - display available commands
 #
 # Author:
 #   RaymondXu
+
+helpString = "
+  Usage:\n
+    @ping @mention [@mention ...] [message] - create a new ping\n
+    @ping log - view your outgoing pings\n
+    @ping n [n ...] - re-ping an old ping by index\n
+    @ping close n [n ...] - close pings by index\n
+    @ping help - display available commands\n"
 
 class PingEntry
   constructor: (@msg, @timestamp, @channel) ->
@@ -27,7 +36,7 @@ getCurrentDatetime = () ->
   return datetime
 
 module.exports = (robot) ->
-  # @ping [@mention ...] ... - create a new ping
+  # @ping @mention [@mention ...] [message] - create a new ping
   robot.hear /@ping (@.+)/i, (res) ->
     pingEntry = new PingEntry res.message.text, getCurrentDatetime(), res.message.room
     sender = "@" + res.message.user.name
@@ -35,9 +44,7 @@ module.exports = (robot) ->
     if not pingLog
       pingLog = []
     pingLog.push(pingEntry)
-
     robot.brain.set sender, pingLog
-    robot.messageRoom sender, "Ping saved."
 
   # @ping log - view your outgoing pings
   robot.hear /@ping log\b/i, (res) ->
@@ -49,10 +56,8 @@ module.exports = (robot) ->
       for i, log of pingLog
         pingLogString += "(" + i + ") " + log.toString() + "\n"
       robot.messageRoom sender, pingLogString
-    else
-      res.messageRoom sender, "No outgoing pings found for you #{sender}."
 
-  # @ping [n ...] - re-ping an old ping
+  # @ping n [n ...] - re-ping an old ping by index
   robot.hear /@ping (\d+)(( \d*)*)/i, (res) ->
     # Parse the message for the ping entries to re-ping
     words = res.match[0].split(" ")
@@ -70,7 +75,7 @@ module.exports = (robot) ->
         pingEntry.timestamp = getCurrentDatetime()
     robot.brain.set sender, pingLog
 
-  # @ping close [n ...] - close pings identified by index number
+  # @ping close n [n ...] - close pings by index
   robot.hear /@ping close (\d+)(( \d*)*)/i, (res) ->
     # Parse the message for the ping entries to close
     words = res.match[0].split(" ")
@@ -88,3 +93,9 @@ module.exports = (robot) ->
       if i not in closeIndices
         newPingLog.push(pingEntry)
     robot.brain.set sender, newPingLog
+
+  # @ping help - display available commands
+  robot.hear /@ping help\b/i, (res) ->
+    sender = "@" + res.message.user.name
+    robot.messageRoom sender, helpString
+
