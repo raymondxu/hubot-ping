@@ -38,7 +38,8 @@ module.exports = (robot) ->
 
     robot.brain.set sender, pingLog
     res.reply "Ping saved."
-    robot.messageRoom sender, "Ping saved."
+    sender2 = "@" + sender
+    robot.messageRoom sender2, "Ping saved."
 
   # @ping log - view your outgoing pings
   robot.hear /@ping log\b/i, (res) ->
