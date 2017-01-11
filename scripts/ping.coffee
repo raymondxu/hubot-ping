@@ -11,14 +11,6 @@
 # Author:
 #   RaymondXu
 
-helpString = "
-  Usage:\n
-    @ping @mention [@mention ...] [message] - create a new ping\n
-    @ping log - view your outgoing pings\n
-    @ping n [n ...] - re-ping an old ping by index\n
-    @ping close n [n ...] - close pings by index\n
-    @ping help - display available commands\n"
-
 class PingEntry
   constructor: (@msg, @timestamp, @channel) ->
 
@@ -93,9 +85,3 @@ module.exports = (robot) ->
       if i not in closeIndices
         newPingLog.push(pingEntry)
     robot.brain.set sender, newPingLog
-
-  # @ping help - display available commands
-  robot.hear /@ping help\b/i, (res) ->
-    sender = "@" + res.message.user.name
-    robot.messageRoom sender, helpString
-
