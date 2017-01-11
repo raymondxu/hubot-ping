@@ -30,28 +30,27 @@ module.exports = (robot) ->
   # @ping [@mention ...] ... - create a new ping
   robot.hear /@ping (@.+)/i, (res) ->
     pingEntry = new PingEntry res.message.text, getCurrentDatetime(), res.channel
-    sender = res.message.user.name
+    sender = "@" + res.message.user.name
     pingLog = robot.brain.get(sender)
     if not pingLog
       pingLog = []
     pingLog.push(pingEntry)
 
     robot.brain.set sender, pingLog
-    res.reply "Ping saved."
-    sender2 = "@" + sender
-    robot.messageRoom sender2, "Ping saved."
+    robot.messageRoom sender, "Ping saved."
 
   # @ping log - view your outgoing pings
   robot.hear /@ping log\b/i, (res) ->
-    sender = res.message.user.name
+    sender = "@" + res.message.user.name
     pingLog = robot.brain.get(sender)
     if pingLog and pingLog.length > 0
+      pingLogString = ""
       pingLog.sort (a, b) -> return a.timestamp > b.timestamp
-      res.reply "Here are your outgoing pings:"
       for i, log of pingLog
-        res.reply "(" + i + ") " + log.toString()
+        pingLogString += "(" + i + ") " + log.toString() + "\n"
+      robot.messageRoom sender, pingLogString
     else
-      res.reply "No outgoing pings found for you #{sender}."
+      res.messageRoom sender, "No outgoing pings found for you #{sender}."
 
   # @ping [n ...] - re-ping an old ping
   robot.hear /@ping (\d+)(( \d*)*)/i, (res) ->
@@ -63,7 +62,7 @@ module.exports = (robot) ->
         pingIndices.push(word)
 
     # Re-ping and bump timestamp
-    sender = res.message.user.name
+    sender = "@" + res.message.user.name
     pingLog = robot.brain.get(sender)
     for i, pingEntry of pingLog
       if i in pingIndices
@@ -82,7 +81,7 @@ module.exports = (robot) ->
 
     # Remove the ping entries from the sender's log
     # Avoid complications by doing an index-exclusive copy
-    sender = res.message.user.name
+    sender = "@" + res.message.user.name
     pingLog = robot.brain.get(sender)
     newPingLog = []
     for i, pingEntry of pingLog
