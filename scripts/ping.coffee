@@ -29,10 +29,7 @@ getCurrentDatetime = () ->
 module.exports = (robot) ->
   # @ping [@mention ...] ... - create a new ping
   robot.hear /@ping (@.+)/i, (res) ->
-    # Build ping entry
     pingEntry = new PingEntry res.message.text, getCurrentDatetime(), res.channel
-
-    # Store ping entry
     sender = res.message.user.name
     pingLog = robot.brain.get(sender)
     if not pingLog
@@ -44,11 +41,9 @@ module.exports = (robot) ->
 
   # @ping log - view your outgoing pings
   robot.hear /@ping log\b/i, (res) ->
-    # Dump sender's ping log
     sender = res.message.user.name
     pingLog = robot.brain.get(sender)
     if pingLog and pingLog.length > 0
-      # Sort oldest-first
       pingLog.sort (a, b) -> return a.timestamp > b.timestamp
       res.reply "Here are your outgoing pings:"
       for i, log of pingLog
@@ -58,7 +53,7 @@ module.exports = (robot) ->
 
   # @ping [n ...] - re-ping an old ping
   robot.hear /@ping (\d+)(( \d*)*)/i, (res) ->
-    # Parse the message for the ping entries re-ping
+    # Parse the message for the ping entries to re-ping
     words = res.match[0].split(" ")
     pingIndices = []
     for i, word of words

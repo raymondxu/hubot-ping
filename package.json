@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "author": "Raymond Xu <raymondxumail@gmail.com>",
-  "description": "A simple helpful robot for your Company",
+  "description": "A bot to track your outgoing pings on Slack",
   "dependencies": {
     "hubot": "^2.19.0",
     "hubot-diagnostics": "0.0.1",
