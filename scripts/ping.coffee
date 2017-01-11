@@ -23,7 +23,8 @@ getCurrentDatetime = () ->
     + currentDate.getDate() + "/" \
     + currentDate.getFullYear() + " " \
     + currentDate.getHours() + ":" \
-    + currentDate.getMinutes()
+    + currentDate.getMinutes() + ":" \
+    + currentDate.getSeconds()
   return datetime
 
 module.exports = (robot) ->
@@ -76,11 +77,7 @@ module.exports = (robot) ->
         closeIndices.push(word)
 
     # Remove the ping entries from the sender's log
-    # Avoid complications by doing an index-exclusive copy
     sender = "@" + res.message.user.name
     pingLog = robot.brain.get(sender)
-    newPingLog = []
-    for i, pingEntry of pingLog
-      if i not in closeIndices
-        newPingLog.push(pingEntry)
+    newPingLog = (pingEntry for i, pingEntry of pingLog when i not in closeIndices)
     robot.brain.set sender, newPingLog
