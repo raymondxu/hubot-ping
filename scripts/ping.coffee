@@ -9,7 +9,7 @@
 #   @ping help - display available commands
 #
 # Author:
-#   RaymondXu
+#   Raymond Xu
 
 class PingEntry
   constructor: (@msg, @timestamp, @channel) ->
@@ -19,12 +19,11 @@ class PingEntry
 
 getCurrentDatetime = () ->
   currentDate = new Date()
-  datetime = currentDate.getDate() + "/" \
-    + (currentDate.getMonth() + 1) + "/" \
+  datetime = (currentDate.getMonth() + 1) + "/" \
+    + currentDate.getDate() + "/" \
     + currentDate.getFullYear() + " " \
     + currentDate.getHours() + ":" \
-    + currentDate.getMinutes() + ":" \
-    + currentDate.getSeconds()
+    + currentDate.getMinutes()
   return datetime
 
 module.exports = (robot) ->
