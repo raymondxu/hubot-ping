@@ -1,6 +1,6 @@
 # hubot-ping
 
-A script that tracks your outgoing pings on Slack, making sure you never forget any of your requests.
+A bot that tracks your outgoing pings on Slack, making sure you never forget any of your requests.
 
 ## Functionality
 - All messages that begin with `@ping @mention` are automatically recorded into your ping log.
@@ -13,7 +13,6 @@ A script that tracks your outgoing pings on Slack, making sure you never forget 
 ## Development
 
 ```bash
-cd hubot-ping
 npm install
 bin/hubot
 ```
